@@ -1,0 +1,84 @@
+#include <LiquidCrystal.h>
+int pos=0;
+const int rs = 10, en = 9, d4 = 4, d5 = 6, d6 = 7, d7 = 8;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+const int trigPin = 3;
+const int echoPin = 2;
+const int buzz=5;
+long duration;
+float distance;
+float tankheight = 10.5;
+int timer = 0;
+String motor_status;
+
+
+void setup()  
+{   
+    lcd.begin(16, 2);
+    pinMode(trigPin, OUTPUT); 
+    pinMode(echoPin, INPUT); 
+    Serial.begin(9600);
+    lcd.setCursor(0,0); 
+    lcd.print("TANKHEIGHT=");
+    lcd.print(tankheight);
+    lcd.print("CM");
+}
+
+void loop() 
+{
+    digitalWrite(trigPin,LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    duration = pulseIn(echoPin, HIGH);
+  
+    float h= tankheight-distance;
+    //Serial.println(h);
+    delay(500);
+    lcd.setCursor(0,0); 
+    lcd.print("TANKHEIGHT=");
+    lcd.print(tankheight);
+    lcd.print("CM  ");
+    lcd.setCursor(0,1);
+    lcd.print(motor_status);
+    lcd.setCursor(10,1);
+    lcd.print(int(h/tankheight*100));
+    lcd.print("%   ");
+    int x=h;
+    if(h<=3&&h>=0)
+    {
+        analogWrite(buzz,255);
+        lcd.setCursor(0,0); 
+        lcd.print("TANKHEIGHT=");
+        lcd.print(tankheight);
+        lcd.print("CM   ");
+        delay(1000);
+        timer++;
+        //  Serial.println("MOTOR ON");
+        lcd.setCursor(0,1);
+        lcd.print("MOTOR ON ");
+        motor_status = "MOTOR ON ";
+        analogWrite(buzz,255);                          
+        }
+    else if(h>=9&&h<=11)
+    {
+        analogWrite(buzz,0);
+        lcd.setCursor(0,0); 
+        lcd.print("TANKHEIGHT=");
+        lcd.print(tankheight);
+        lcd.print("CM  ");
+        delay(500);
+        timer++;
+        //  Serial.println("MOTOR OFF"); 
+        lcd.setCursor(0,1);
+        lcd.print("MOTOR OFF");
+        motor_status = "MOTOR OFF";   
+    }
+    if(timer > 2)
+    {
+        timer = 0;
+        lcd.clear();
+    }
+    }
+    //IN PLACE OF BUZZER WE REPLACED IT BY RELAY
